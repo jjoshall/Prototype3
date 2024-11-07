@@ -23,7 +23,7 @@ public class Picture : MonoBehaviour
         }
     }
 
-    private IEnumerator FlashEffect()
+    public IEnumerator FlashEffect()
     {
         // Enable the flash effect
         cameraFlash.SetActive(true);
