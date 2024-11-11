@@ -1200,7 +1200,7 @@ MonoBehaviour:
   AnimalPOV: {fileID: 1027215877}
   PlayerController: {fileID: 2027506872}
   AnimalController: {fileID: 7473360}
-  pictureScript: {fileID: 0}
+  pictureScript: {fileID: 1657640792}
 --- !u!1 &479167124
 GameObject:
   m_ObjectHideFlags: 0

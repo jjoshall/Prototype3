@@ -39,14 +39,15 @@ public class CameraSwap : MonoBehaviour
             
             if (hit.collider.CompareTag("Animal"))
             {
-                ActivateAnimalCamera();
+                StartCoroutine(SwitchToAnimalCamera());
             }
             else if (hit.collider.CompareTag("Player"))
             {
-                ActivatePlayerCamera();
+                StartCoroutine(SwitchToPlayerCamera());
             }
         }
     }
+
     private IEnumerator SwitchToAnimalCamera()
     {
         // Trigger the flash effect before switching cameras
