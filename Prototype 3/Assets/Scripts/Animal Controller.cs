@@ -18,58 +18,68 @@ public class AnimalController : MonoBehaviour
     float rotationX = 0;
  
     public bool canMove = true;
- 
+    public bool isActive = false; // Indicates if this animal is currently controlled
+
+
     CharacterController characterController;
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+          characterController = GetComponent<CharacterController>();
+          animalCamera.gameObject.SetActive(false); // Start with the animal camera inactive
+          
     }
  
     void Update()
     {
-        #region Handles Movement
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
+          if (!isActive)
+          {
+               return;
+          }
 
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
-        float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
-        float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+          Cursor.lockState = CursorLockMode.Locked;
+          Cursor.visible = false;
 
-        #endregion
+          #region Handles Movement
+          Vector3 forward = transform.TransformDirection(Vector3.forward);
+          Vector3 right = transform.TransformDirection(Vector3.right);
+
+          bool isRunning = Input.GetKey(KeyCode.LeftShift);
+          float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
+          float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
+          float movementDirectionY = moveDirection.y;
+          moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+
+          #endregion
  
-        #region Handles Jumping
-        if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
-        {
-            moveDirection.y = jumpPower;
-        }
-        else
-        {
-            moveDirection.y = movementDirectionY;
-        }
+          #region Handles Jumping
+          if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
+          {
+               moveDirection.y = jumpPower;
+          }
+          else
+          {
+               moveDirection.y = movementDirectionY;
+          }
 
-        if (!characterController.isGrounded)
-        {
-            moveDirection.y -= gravity * Time.deltaTime;
-        }
+          if (!characterController.isGrounded)
+          {
+               moveDirection.y -= gravity * Time.deltaTime;
+          }
 
-        #endregion
+          #endregion
 
-        #region Handles Rotation
-        characterController.Move(moveDirection * Time.deltaTime);
+          #region Handles Rotation
+          characterController.Move(moveDirection * Time.deltaTime);
 
-        if (canMove)
-        {
-            rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
-            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            animalCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0); 
-            transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
-        }
+          if (canMove)
+          {
+               rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+               rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+               animalCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0); 
+               transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
+          }
 
-        #endregion
+          #endregion
     }
 }

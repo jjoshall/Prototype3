@@ -4,94 +4,100 @@ using UnityEngine;
 
 public class CameraSwap : MonoBehaviour
 {
-    public GameObject PlayerPOV;
-    public GameObject AnimalPOV;
-    public MonoBehaviour PlayerController; // Reference to the player's controller script
-    public MonoBehaviour AnimalController; // Reference to the animal's controller script
+     public GameObject PlayerPOV;
+     public MonoBehaviour PlayerController; // Reference to the player's controller script
 
-    private bool isPlayerCameraActive = true;
+     private AnimalController activeAnimalController = null; // Currently active animal controller
 
-    public Picture pictureScript;
+     public Picture pictureScript;
 
-    void Start()
-    {
-        ActivatePlayerCamera(); // Start with player camera active
-    }
+     void Start()
+     {
+          ActivatePlayerCamera(); // Start with player camera active
+     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0)) // Left click
-        {
-            RaycastToSwitchCamera();
-        }
-    }
+     void Update()
+     {
+          if (Input.GetMouseButtonDown(0)) // Left click
+          {
+               RaycastToSwitchCamera();
+          }
+     }
 
-    void RaycastToSwitchCamera()
-    {
+     void RaycastToSwitchCamera()
+     {
+          Camera activeCamera = PlayerPOV.activeSelf ? PlayerPOV.GetComponent<Camera>() : activeAnimalController?.animalCamera;
 
-        Camera activeCamera = PlayerPOV.activeSelf ? PlayerPOV.GetComponent<Camera>() : AnimalPOV.GetComponent<Camera>();
+          Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
+          RaycastHit hit;
 
-        Ray ray = activeCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+          if (Physics.Raycast(ray, out hit))
+          {
+               if (hit.collider.CompareTag("Animal"))
+               {
+                    AnimalController animalController = hit.collider.GetComponent<AnimalController>();
+                    if (animalController != null)
+                    {
+                         StartCoroutine(SwitchToAnimalCamera(animalController));
+                    }
+               }
+               else if (hit.collider.CompareTag("Player"))
+               {
+                    StartCoroutine(SwitchToPlayerCamera());
+               }
+          }
+     }
 
-        if (Physics.Raycast(ray, out hit))
-        {
-            
-            if (hit.collider.CompareTag("Animal"))
-            {
-                StartCoroutine(SwitchToAnimalCamera());
-            }
-            else if (hit.collider.CompareTag("Player"))
-            {
-                StartCoroutine(SwitchToPlayerCamera());
-            }
-        }
-    }
+     private IEnumerator SwitchToAnimalCamera(AnimalController animalController)
+     {
+          // Trigger the flash effect before switching cameras
+          yield return StartCoroutine(pictureScript.FlashEffect());
 
-    private IEnumerator SwitchToAnimalCamera()
-    {
-        // Trigger the flash effect before switching cameras
-        yield return StartCoroutine(pictureScript.FlashEffect());
+          // Switch to animal camera after flash effect
+          ActivateAnimalCamera(animalController);
+     }
 
-        // Switch to animal camera after flash effect
-        ActivateAnimalCamera();
-    }
+     private IEnumerator SwitchToPlayerCamera()
+     {
+          // Trigger the flash effect before switching cameras
+          yield return StartCoroutine(pictureScript.FlashEffect());
 
-    private IEnumerator SwitchToPlayerCamera()
-    {
-        // Trigger the flash effect before switching cameras
-        yield return StartCoroutine(pictureScript.FlashEffect());
+          // Switch to player camera after flash effect
+          ActivatePlayerCamera();
+     }
 
-        // Switch to player camera after flash effect
-        ActivatePlayerCamera();
-    }
-    void SwitchCamera()
-    {
-        if (isPlayerCameraActive)
-        {
-            ActivateAnimalCamera();
-        }
-        else
-        {
-            ActivatePlayerCamera();
-        }
-    }
+     void ActivatePlayerCamera()
+     {
+          // Deactivate any active animal controller and camera
+          if (activeAnimalController != null)
+          {
+               activeAnimalController.isActive = false;
+               activeAnimalController.animalCamera.gameObject.SetActive(false);
+               activeAnimalController = null;
+          }
 
-    void ActivatePlayerCamera()
-    {
-        PlayerPOV.SetActive(true);
-        AnimalPOV.SetActive(false);
-        PlayerController.enabled = true;
-        AnimalController.enabled = false;
-        isPlayerCameraActive = true;
-    }
+          PlayerPOV.SetActive(true);
+          PlayerController.enabled = true;
+          Cursor.lockState = CursorLockMode.Locked;
+          Cursor.visible = false;
+     }
 
-    void ActivateAnimalCamera()
-    {
-        AnimalPOV.SetActive(true);
-        PlayerPOV.SetActive(false);
-        PlayerController.enabled = false;
-        AnimalController.enabled = true;
-        isPlayerCameraActive = false;
-    }
+     void ActivateAnimalCamera(AnimalController animalController)
+     {
+          // Deactivate the player controller and camera
+          PlayerPOV.SetActive(false);
+          PlayerController.enabled = false;
+
+          // Deactivate any previously active animal
+          if (activeAnimalController != null)
+          {
+               activeAnimalController.isActive = false;
+               activeAnimalController.animalCamera.gameObject.SetActive(false);
+          }
+
+          // Activate the new animal
+          activeAnimalController = animalController;
+          activeAnimalController.isActive = true;
+          activeAnimalController.animalCamera.gameObject.SetActive(true);
+     }
 }
