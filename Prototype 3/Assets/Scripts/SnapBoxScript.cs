@@ -14,11 +14,13 @@ public class SnapBoxScript : MonoBehaviour
     public bool isAttaching; //if false, the object shouldn't move
     Transform setPosition; 
     List<GameObject> snapPoints; 
+    GameObject[] allAttachers;
     // Start is called before the first frame update
     void Start()
     {
         snapPoints = GameObject.FindGameObjectsWithTag(tagName).ToList();
         setPosition = transform;
+        allAttachers = new GameObject[transform.childCount];
     }
 
     // Update is called once per frame
