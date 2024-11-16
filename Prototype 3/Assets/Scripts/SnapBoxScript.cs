@@ -13,14 +13,12 @@ public class SnapBoxScript : MonoBehaviour
     public float proximityToSnap = 0.5f;
     public bool isAttaching; //if false, the object shouldn't move
     Transform setPosition; 
-    List<GameObject> snapPoints; 
-    GameObject[] allAttachers;
+    GameObject[] snapPoints; 
     // Start is called before the first frame update
     void Start()
     {
-        snapPoints = GameObject.FindGameObjectsWithTag(tagName).ToList();
+        snapPoints = GameObject.FindGameObjectsWithTag(tagName);
         setPosition = transform;
-        allAttachers = new GameObject[transform.childCount];
     }
 
     // Update is called once per frame
@@ -59,6 +57,4 @@ public class SnapBoxScript : MonoBehaviour
             }
         }
     }
-
-
 }

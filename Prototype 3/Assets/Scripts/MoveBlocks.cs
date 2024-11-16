@@ -32,6 +32,8 @@ public class MoveBlocks : MonoBehaviour
         }else{
             rb.constraints = RigidbodyConstraints.FreezeAll;
         }
-        
+    }
+    public void setMove(bool set){
+        isMovable = set;
     }
 }
