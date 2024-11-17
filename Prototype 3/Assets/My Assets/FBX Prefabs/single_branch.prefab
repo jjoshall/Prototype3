@@ -109,3 +109,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyedVersion: {fileID: 4113553299209555325, guid: 348543b5983493b4780c3b4788694d96, type: 3}
   breakDelay: 2
+  breakSound: {fileID: 8300000, guid: 423ddf81aac41e84caeafed49d682f0e, type: 3}
