@@ -4,18 +4,21 @@ using UnityEngine;
 public class Destructible : MonoBehaviour
 {
      public GameObject destroyedVersion;
-     public float breakDelay = 2f; // Default starting delay
-     public AudioClip breakSound; // Reference to the sound effect
+     public float breakDelay = 1f; // Default starting delay
 
      private bool isBreaking = false;
-     private AudioSource audioSource;
 
+     private AudioSource breakSound;
+
+     // Start is called before the first frame update
      void Start()
      {
-          // Add an AudioSource component if not already present and set the clip
-          audioSource = gameObject.AddComponent<AudioSource>();
-          audioSource.clip = breakSound;
-          audioSource.playOnAwake = false; // Prevents the sound from playing on object start
+          breakSound = GetComponent<AudioSource>();
+
+          if (breakSound == null)
+          {
+               Debug.LogError("AudioSource component not found on this object. Break sound will not play.");
+          }
      }
 
      void OnCollisionEnter(Collision collision)
@@ -25,6 +28,13 @@ public class Destructible : MonoBehaviour
                isBreaking = true;
                breakDelay = ScoreManager.instance.breakDelay; // Ensure the current break delay is consistent
                BreakDelayManager.instance?.StartCountdown(breakDelay);
+               if (breakSound != null)
+               {
+                    if (breakSound != null)
+                    {
+                         StartCoroutine(PlayBreakSoundWithDelay(1.5f));
+                    }
+               }
                StartCoroutine(BreakAfterDelay());
           }
      }
@@ -33,14 +43,10 @@ public class Destructible : MonoBehaviour
      {
           yield return new WaitForSeconds(breakDelay);
 
-          // Play the breaking sound
-          if (audioSource != null && audioSource.clip != null)
-          {
-               audioSource.Play();
-               Debug.Log("Playing break sound");
-          }
-
           GameObject instance = Instantiate(destroyedVersion, transform.position, transform.rotation);
+
+          
+
           Destroy(gameObject);
 
           // Apply forces to the broken pieces
@@ -59,8 +65,16 @@ public class Destructible : MonoBehaviour
           if (ScoreManager.instance != null)
           {
                ScoreManager.instance.AddScore(1);
+               
           }
 
           isBreaking = false; // Reset breaking state for next collision
+     }
+
+     IEnumerator PlayBreakSoundWithDelay(float delay)
+     {
+          yield return new WaitForSeconds(delay);
+          breakSound.Play();
+          Debug.Log("Break sound played.");
      }
 }
